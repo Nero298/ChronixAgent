@@ -1,8 +1,8 @@
 {
   "device_name": "Chronix-PC",
   "server_port": 8765,
-  "gemini_api_key": "",
-  "gemini_model": "gemini-2.0-flash",
+  "gemini_api_key": "AQ.Ab8RN6JBoF3swxakn6scyKA19XtLerLSGlNvoWaURpHNAI3pNA",
+  "gemini_model": "gemini-3.6-flash",
   "auto_start": false,
   "require_approval_for_medium": false,
   "pairing_token": "",
