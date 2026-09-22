@@ -83,11 +83,11 @@ jobs:
         working-directory: android/ChronixAgent
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleRelease --stacktrace
+          ./gradlew assembleDebug --stacktrace
       - name: Upload Android artifact
         uses: actions/upload-artifact@v7
         with:
           name: ChronixAgent-Android
-          path: android/ChronixAgent/app/build/outputs/apk/release/*.apk
+          path: android/ChronixAgent/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           # The APK build never embeds a Gemini API key - see android/ChronixAgent/README.md.
