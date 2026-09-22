@@ -1,0 +1,7 @@
+# Chronix Agent - Windows runtime dependencies
+# Kept intentionally minimal for Windows 7 / 2 GB RAM targets.
+# No Flask, no Electron, no local ML/LLM stack.
+
+rapidfuzz>=3.0,<4.0      # fuzzy app-name matching (skills/apps/launcher.py)
+psutil>=5.9,<6.0         # optional: richer get_system_info (falls back gracefully if absent)
+pyinstaller>=5.13,<6.0   # packaging only - not needed at runtime on the target PC

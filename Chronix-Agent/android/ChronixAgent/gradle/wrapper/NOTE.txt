@@ -1,0 +1,14 @@
+The gradle-wrapper.jar binary and gradlew/gradlew.bat scripts are not
+committed to this repo (the jar is a binary file, generated boilerplate).
+
+GitHub Actions (.github/workflows/build.yml, build-android job) does not
+need this file: it generates a fresh wrapper itself on every run via
+`gradle wrapper --gradle-version 8.7`, using the Gradle binary installed
+by gradle/actions/setup-gradle. That is the supported, verified build path.
+
+For local development, generate the wrapper once yourself:
+    cd android/ChronixAgent
+    gradle wrapper --gradle-version 8.7
+
+Or simply open android/ChronixAgent/ in Android Studio, which will
+offer to sync and regenerate the wrapper automatically.

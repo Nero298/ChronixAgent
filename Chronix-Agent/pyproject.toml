@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+# Explicit rather than relying on pytest's implicit rootdir/sys.path
+# auto-detection - CI environments have burned people on this before.
+testpaths = ["tests"]
+pythonpath = ["."]

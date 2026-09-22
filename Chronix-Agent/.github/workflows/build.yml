@@ -1,0 +1,93 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          pip install -r requirements/windows.txt
+          pip install "pytest>=7.4,<9.0"
+      - name: Run tests
+        run: pytest -v
+
+  build-windows:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements/windows.txt
+      - name: Build ChronixAgent.exe
+        run: python scripts/build_windows.py
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ChronixAgent-Windows
+          path: dist/ChronixAgent.exe
+          if-no-files-found: error
+          # Secrets are never present in this build: the Gemini API key is
+          # supplied at runtime via config.json or CHRONIX_GEMINI_API_KEY,
+          # never baked into the build.
+
+  build-android:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools platforms;android-34 build-tools;34.0.0"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          # Explicit version so setup-gradle actually installs a `gradle`
+          # binary onto PATH (it only does this when given an explicit
+          # version - with no gradlew present yet, there's nothing else
+          # for it to detect a version from).
+          gradle-version: "8.7"
+          # This project has no need for Gradle build caching (small
+          # codebase, infrequent CI runs), so use the MIT-licensed Basic
+          # Caching provider rather than the default proprietary Enhanced
+          # Caching component, which carries a separate commercial Terms
+          # of Use (see gradle/actions v6 release notes).
+          cache-provider: basic
+      - name: Generate Gradle wrapper
+        # No gradlew/gradlew.bat/gradle-wrapper.jar is committed to this
+        # repo (the jar is a binary file and shouldn't be hand-authored),
+        # so generate a real wrapper here using the Gradle installed by
+        # setup-gradle above. This produces gradlew fresh every run,
+        # pinned to a known-good version.
+        working-directory: android/ChronixAgent
+        run: gradle wrapper --gradle-version 8.7
+      - name: Build ChronixAgent.apk
+        working-directory: android/ChronixAgent
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleRelease --stacktrace
+      - name: Upload Android artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ChronixAgent-Android
+          path: android/ChronixAgent/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+          # The APK build never embeds a Gemini API key - see android/ChronixAgent/README.md.
